@@ -18,6 +18,10 @@ Min 3: REST
 python3 -m http.server 8123
 ```
 
+## Dev mode
+
+Open `/?dev` to turn on a floating tuning panel (`dev.js`). Hover over a header to show it: sliders for the run view's row heights, gap, and the cells' padding, radius and border width. Values persist in local storage, and **Copy CSS** exports them as `:root` variables for `style.css`. Open `/?dev=0` to turn it off.
+
 ## Hosting
 
 GitHub Pages serves the root of `main` at https://no-gym.gergo.dev. That needs a DNS record of `no-gym CNAME trekdemo.github.io`.

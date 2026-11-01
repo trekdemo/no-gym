@@ -164,14 +164,36 @@ form { display: grid; gap: 18px; }
 .controls { display: flex; gap: 8px; }
 .controls button { flex: 1; min-height: 56px; }
 
-/* Run view: rows share the window height (dvh) so nothing shifts as the text changes. */
-.timer.run { height: calc(100dvh - 40px); min-height: 0; gap: 16px; }
+/* Run view: rows share the window height (dvh) so nothing shifts as the text changes.
+   The --row-* sizes and --cell-* styling are tunable live from dev.js. */
+:root {
+  --row-header: 5dvh;
+  --row-next: 15dvh;
+  --row-bar: 20dvh;
+  --row-controls: 20dvh;
+
+  --run-gap: 18px;
+  --cell-padding: 12px;
+  --cell-radius: 18px;
+  --cell-border: 1px;
+}
+
+.timer.run { height: calc(100dvh - 40px); min-height: 0; gap: var(--run-gap); }
 .timer.run > * { min-height: 0; }
-.run-header { flex: 0 0 calc(100dvh / 15); display: flex; flex-direction: column; justify-content: center; }
+.run-header { flex: 0 0 var(--row-header); display: flex; flex-direction: column; justify-content: center; }
 .run-header .progress-label { margin: 0; }
-.timer.run .exercise { flex: 1; padding: 16px; border: 1px solid var(--danger); border-radius: 10px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-.timer.run .next { flex: 0 0 20dvh; margin: 0; display: flex; align-items: center; justify-content: center; font-size: clamp(1.75rem, 8vw, 2.5rem); }
-.timer.run .bar { flex: 0 0 20dvh; display: flex; }
+.timer.run .exercise,
+.timer.run .next,
+.timer.run .bar,
+.run-controls button {
+  border: var(--cell-border) solid var(--danger);
+  border-radius: var(--cell-radius);
+}
+.timer.run .exercise,
+.timer.run .next { padding: var(--cell-padding); }
+.timer.run .exercise { flex: 1; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.timer.run .next { flex: 0 0 var(--row-next); margin: 0; display: flex; align-items: center; justify-content: center; font-size: clamp(1.75rem, 8vw, 2.5rem); overflow: hidden; }
+.timer.run .bar { flex: 0 0 var(--row-bar); display: flex; }
 .timer.run .clock { flex: 1; }
-.run-controls { flex: 0 0 20dvh; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.run-controls { flex: 0 0 var(--row-controls); display: grid; grid-template-columns: 1fr 1fr; gap: var(--run-gap); }
 .run-controls svg { display: block; width: 56px; height: 56px; margin: auto; }
