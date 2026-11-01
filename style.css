@@ -156,7 +156,10 @@ form { display: grid; gap: 18px; }
 .clock.fill { position: absolute; inset: 0; background: var(--accent); color: var(--on-accent); }
 
 .bar.ending .clock { color: var(--warning); }
-.bar.ending .clock.fill { background: var(--warning); color: var(--on-accent); }
+.bar.ending .clock.fill {
+  background: var(--warning);
+  color: var(--on-accent);
+}
 
 .exercise { margin: 0; font-size: clamp(1.75rem, 8vw, 2.5rem); font-weight: 700; line-height: 1.15; overflow-wrap: anywhere; }
 .next { margin: 8px 0 0; font-size: 1.0625rem; overflow-wrap: anywhere; }
@@ -169,13 +172,27 @@ form { display: grid; gap: 18px; }
 :root {
   --row-header: 5dvh;
   --row-next: 15dvh;
-  --row-bar: 20dvh;
-  --row-controls: 20dvh;
+  --row-bar: 15dvh;
+  --row-controls: 15dvh;
 
   --run-gap: 18px;
   --cell-padding: 12px;
   --cell-radius: 18px;
-  --cell-border: 1px;
+  --cell-border: 2px;
+
+  /* Cell colours: background and border of each run-view cell. */
+  --exercise-bg: var(--bg);
+  --exercise-border: var(--accent);
+  --next-bg: var(--bg);
+  --next-border: var(--bg);
+  --bar-bg: var(--bg);
+  --bar-border: var(--accent);
+  --resume-bg: var(--accent);
+  --resume-border: var(--accent);
+  --pause-bg: var(--warning);
+  --pause-border: var(--warning);
+  --stop-bg: var(--bg);
+  --stop-border: var(--danger);
 }
 
 .timer.run { height: calc(100dvh - 40px); min-height: 0; gap: var(--run-gap); }
@@ -186,9 +203,17 @@ form { display: grid; gap: 18px; }
 .timer.run .next,
 .timer.run .bar,
 .run-controls button {
-  border: var(--cell-border) solid var(--danger);
+  border: var(--cell-border) solid;
   border-radius: var(--cell-radius);
 }
+.timer.run .exercise { border-color: var(--exercise-border); background: var(--exercise-bg); }
+.timer.run .next { border-color: var(--next-border); background: var(--next-bg); }
+.timer.run .bar { border-color: var(--bar-border); background: var(--bar-bg); }
+.timer.run .bar.ending { border-color: var(--warning); }
+.run-controls .primary { border-color: var(--resume-border); background: var(--resume-bg); }
+.run-controls .warning { border-color: var(--pause-border); background: var(--pause-bg); }
+.run-controls .danger { border-color: var(--stop-border); background: var(--stop-bg); }
+.run-controls .danger.armed { background: var(--danger); }
 .timer.run .exercise,
 .timer.run .next { padding: var(--cell-padding); }
 .timer.run .exercise { flex: 1; display: flex; align-items: center; justify-content: center; overflow: hidden; }
