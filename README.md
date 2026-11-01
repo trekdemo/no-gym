@@ -20,7 +20,7 @@ python3 -m http.server 8123
 
 ## Dev mode
 
-Open `/?dev` to turn on a floating tuning panel (`dev.js`). Hover over a header to show it: sliders for the run view's row heights, gap, and the cells' padding, radius and border width. Values persist in local storage, and **Copy CSS** exports them as `:root` variables for `style.css`. Open `/?dev=0` to turn it off.
+Open `/?dev` to turn on a floating tuning panel (`dev.js`). Hover over a header to show it: sliders for the run view's row heights, gap, and the cells' padding, radius and border width, plus the background and border colour of each cell. Values persist in local storage, and **Copy CSS** exports the changed ones as `:root` variables for `style.css`.  The panel only exists while `?dev` is in the URL.
 
 ## Hosting
 

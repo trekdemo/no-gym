@@ -2,22 +2,13 @@
 
 // Development mode: a floating form (shown while hovering a header) for tuning
 // the run view's layout ratios and cell styling live. Everything is inert unless
-// switched on: visit /?dev to enable it, /?dev=0 to disable it. The choice sticks.
+// switched on by having ?dev in the URL; without it nothing is loaded or applied.
 (() => {
-  const FLAG_KEY = 'no-gym.dev';
   const VALUES_KEY = 'no-gym.dev.values';
   const HIDE_DELAY_MS = 300;
 
   const params = new URLSearchParams(location.search);
-  try {
-    if (params.has('dev')) {
-      if (params.get('dev') === '0') localStorage.removeItem(FLAG_KEY);
-      else localStorage.setItem(FLAG_KEY, '1');
-    }
-    if (localStorage.getItem(FLAG_KEY) !== '1') return;
-  } catch {
-    return;
-  }
+  if (!params.has('dev') || params.get('dev') === '0') return;
 
   const root = document.documentElement;
 
@@ -34,8 +25,23 @@
       { name: '--cell-padding', label: 'Padding', min: 0, max: 48, step: 1, unit: 'px' },
       { name: '--cell-radius', label: 'Radius', min: 0, max: 48, step: 1, unit: 'px' },
       { name: '--cell-border', label: 'Border width', min: 0, max: 12, step: 0.5, unit: 'px' },
+      { name: '--edge-darken', label: 'Edge darken', min: 0, max: 100, step: 1, unit: '%' },
     ] },
   ];
+  GROUPS.push({ title: 'Cell colours', controls: [
+    { name: '--exercise-bg', label: 'Exercise bg' },
+    { name: '--exercise-border', label: 'Exercise edge' },
+    { name: '--next-bg', label: 'Next bg' },
+    { name: '--next-border', label: 'Next edge' },
+    { name: '--bar-bg', label: 'Clock bg' },
+    { name: '--bar-border', label: 'Clock edge' },
+    { name: '--pause-bg', label: 'Pause bg' },
+    { name: '--resume-bg', label: 'Resume bg' },
+    { name: '--pause-border', label: 'Pause edge' },
+    { name: '--resume-border', label: 'Resume edge' },
+    { name: '--stop-bg', label: 'Stop bg' },
+    { name: '--stop-border', label: 'Stop edge' },
+  ].map((control) => ({ ...control, color: true })) });
   const CONTROLS = GROUPS.flatMap((group) => group.controls);
 
   function loadValues() {
@@ -52,19 +58,34 @@
     } catch { /* tuning still works for this page view */ }
   }
 
+  // The colour input only takes #rrggbb, so let a canvas turn any CSS colour into that.
+  const canvas = document.createElement('canvas').getContext('2d');
+  function toHex(color) {
+    canvas.fillStyle = '#000000';
+    canvas.fillStyle = color;
+    if (canvas.fillStyle.startsWith('#')) return canvas.fillStyle;
+    // Colours like color-mix() may serialise as rgb() or color(); read the pixel instead.
+    canvas.clearRect(0, 0, 1, 1);
+    canvas.fillRect(0, 0, 1, 1);
+    const [r, g, b] = canvas.getImageData(0, 0, 1, 1).data;
+    return `#${[r, g, b].map((channel) => channel.toString(16).padStart(2, '0')).join('')}`;
+  }
+
   // Read the stylesheet's defaults before any override is applied.
-  const defaults = Object.fromEntries(CONTROLS.map(({ name }) =>
-    [name, parseFloat(getComputedStyle(root).getPropertyValue(name))]));
+  const defaults = Object.fromEntries(CONTROLS.map((control) => {
+    const computed = getComputedStyle(root).getPropertyValue(control.name).trim();
+    return [control.name, control.color ? toHex(computed) : parseFloat(computed)];
+  }));
   const values = loadValues();
 
-  const cssValue = ({ name, unit }, value) => `${value}${unit}`;
+  const cssValue = ({ unit = '' }, value) => `${value}${unit}`;
 
   function apply(control, value) {
     root.style.setProperty(control.name, cssValue(control, value));
   }
 
   for (const control of CONTROLS) {
-    if (typeof values[control.name] === 'number') apply(control, values[control.name]);
+    if (control.name in values) apply(control, values[control.name]);
   }
 
   const panel = document.createElement('form');
@@ -80,8 +101,9 @@
       box-shadow: 0 8px 28px rgb(0 0 0 / 0.25); font-size: 13px; }
     #dev-panel[hidden] { display: none; }
     #dev-panel h3 { margin: 4px 0 0; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
-    #dev-panel label { display: grid; grid-template-columns: 78px 1fr 58px; align-items: center; gap: 8px; }
+    #dev-panel label { display: grid; grid-template-columns: 96px 1fr 58px; align-items: center; gap: 8px; }
     #dev-panel input { min-height: 0; padding: 0; border: 0; background: none; accent-color: var(--accent); }
+    #dev-panel input[type=color] { height: 24px; width: 100%; cursor: pointer; }
     #dev-panel output { text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); }
     #dev-panel .dev-actions { display: flex; gap: 6px; }
     #dev-panel button { flex: 1; min-height: 30px; padding: 0 8px; border-radius: 8px; font-size: 12px; }
@@ -101,12 +123,13 @@
     panel.append(title);
     for (const control of group.controls) {
       const input = document.createElement('input');
-      Object.assign(input, { type: 'range', min: control.min, max: control.max, step: control.step });
+      if (control.color) input.type = 'color';
+      else Object.assign(input, { type: 'range', min: control.min, max: control.max, step: control.step });
       const output = document.createElement('output');
       inputs.set(control.name, input);
       outputs.set(control.name, output);
       input.addEventListener('input', () => {
-        const value = Number(input.value);
+        const value = control.color ? input.value : Number(input.value);
         values[control.name] = value;
         apply(control, value);
         show(control, value);
@@ -135,8 +158,10 @@
   copy.type = 'button';
   copy.textContent = 'Copy CSS';
   copy.addEventListener('click', async () => {
-    const lines = CONTROLS.map((control) =>
-      `  ${control.name}: ${cssValue(control, values[control.name] ?? defaults[control.name])};`);
+    // Only what was changed, so untouched variables keep following the theme.
+    const lines = CONTROLS.filter(({ name }) => name in values)
+      .map((control) => `  ${control.name}: ${cssValue(control, values[control.name])};`);
+    if (lines.length === 0) lines.push('  /* nothing changed */');
     try {
       await navigator.clipboard.writeText(`:root {\n${lines.join('\n')}\n}`);
       copy.textContent = 'Copied';
