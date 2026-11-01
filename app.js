@@ -49,6 +49,20 @@ function h(tag, props = {}, ...children) {
   return element;
 }
 
+// Lucide icons (lucide.dev, v1.66.0, ISC licence).
+const ICONS = {
+  play: '<path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z"/>',
+  pause: '<rect x="14" y="3" width="5" height="18" rx="1"/><rect x="5" y="3" width="5" height="18" rx="1"/>',
+  square: '<rect width="18" height="18" x="3" y="3" rx="2"/>',
+};
+
+// The label gives the icon's button its name for screen readers.
+function icon(name, label) {
+  const template = document.createElement('template');
+  template.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="${label}">${ICONS[name]}</svg>`;
+  return template.content.firstElementChild;
+}
+
 // Destructive actions take a second tap, so a sweaty finger can't trigger them.
 function confirmButton(label, armedLabel, onConfirm) {
   let disarmTimer = null;
@@ -61,11 +75,11 @@ function confirmButton(label, armedLabel, onConfirm) {
         onConfirm();
         return;
       }
-      button.textContent = armedLabel;
+      button.replaceChildren(armedLabel);
       button.classList.add('armed');
       disarmTimer = setTimeout(() => {
         disarmTimer = null;
-        button.textContent = label;
+        button.replaceChildren(label);
         button.classList.remove('armed');
       }, DISARM_MS);
     },
@@ -410,25 +424,27 @@ function renderRun() {
   const view = {
     status: h('p', { className: 'muted progress-label' }),
     clock: h('div', { className: 'clock', role: 'timer' }),
-    fill: h('div'),
+    fill: h('div', { className: 'clock fill', 'aria-hidden': 'true' }),
     exercise: h('p', { className: 'exercise' }),
     next: h('p', { className: 'next muted' }),
-    pause: h('button', { type: 'button', className: 'primary', onclick: togglePause }, 'Pause'),
+    pause: h('button', { type: 'button', className: 'primary', onclick: togglePause }),
+    pauseIcon: icon('pause', 'Pause'),
+    resumeIcon: icon('play', 'Resume'),
   };
+  view.bar = h('div', { className: 'bar' }, view.clock, view.fill);
   run.view = view;
 
-  app.replaceChildren(h('div', { className: 'timer' },
-    h('h2', {}, run.workout.title),
-    view.status,
-    h('div', { className: 'stage' },
-      view.clock,
-      h('div', { className: 'bar' }, view.fill),
-      view.exercise,
-      view.next,
+  app.replaceChildren(h('div', { className: 'timer run' },
+    h('div', { className: 'run-header' },
+      h('h2', {}, run.workout.title),
+      view.status,
     ),
-    h('div', { className: 'controls' },
+    view.exercise,
+    view.next,
+    view.bar,
+    h('div', { className: 'run-controls' },
       view.pause,
-      confirmButton('Stop', 'Tap again to stop', () => { location.hash = '#/'; }),
+      confirmButton(icon('square', 'Stop'), 'Tap again to stop', () => { location.hash = '#/'; }),
     ),
   ));
 
@@ -483,11 +499,13 @@ function tick() {
     ? `${plural(workout.sets, 'set')} · ${totalMinutes(workout)} min`
     : `Set ${step.set} of ${workout.sets} · Minute ${position.index + 1} of ${steps.length}`;
   view.clock.textContent = seconds === 60 ? '1:00' : `0:${String(seconds).padStart(2, '0')}`;
-  view.clock.classList.toggle('ending', seconds <= 3);
-  view.fill.style.width = `${(position.remainingMs / position.lengthMs) * 100}%`;
+  view.fill.textContent = view.clock.textContent;
+  view.bar.classList.toggle('ending', seconds <= 3);
+  view.fill.style.clipPath = `inset(0 ${(1 - position.remainingMs / position.lengthMs) * 100}% 0 0)`;
   view.exercise.textContent = isPrep ? 'Get ready' : describeStep(step);
   view.next.textContent = upcoming ? `Next: ${describeStep(upcoming)}` : 'Last one!';
-  view.pause.textContent = pausedAt === null ? 'Pause' : 'Resume';
+  view.pause.replaceChildren(pausedAt === null ? view.pauseIcon : view.resumeIcon);
+  view.pause.classList.toggle('warning', pausedAt === null);
 }
 
 // --- Routing ---

@@ -69,6 +69,7 @@ button:disabled { opacity: 0.35; cursor: default; }
 button:focus-visible, input:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 
 button.primary { border-color: var(--accent); background: var(--accent); color: var(--on-accent); }
+button.warning { border-color: var(--warning); background: var(--warning); color: var(--on-accent); }
 button.danger { border-color: var(--danger); background: transparent; color: var(--danger); }
 button.danger.armed { background: var(--danger); color: var(--bg); }
 
@@ -140,20 +141,37 @@ form { display: grid; gap: 18px; }
 
 .timer .progress-label { margin: 4px 0 0; }
 
+.bar { position: relative; border-radius: 14px; background: var(--border); overflow: hidden; }
+
 .clock {
-  font-size: clamp(5.5rem, 30vw, 9rem);
+  font-size: clamp(3rem, min(30vw, 12dvh), 9rem);
   font-weight: 700;
   line-height: 1;
   font-variant-numeric: tabular-nums;
 }
 
-.clock.ending { color: var(--warning); }
+/* The fill is a second copy of the clock on top of the first, clipped to the
+   time remaining. The digits change colour exactly where the bar's edge crosses them. */
+.clock { display: flex; align-items: center; justify-content: center; }
+.clock.fill { position: absolute; inset: 0; background: var(--accent); color: var(--on-accent); }
 
-.bar { height: 8px; margin: 8px 0 24px; border-radius: 4px; background: var(--border); overflow: hidden; }
-.bar > div { height: 100%; background: var(--accent); }
+.bar.ending .clock { color: var(--warning); }
+.bar.ending .clock.fill { background: var(--warning); color: var(--on-accent); }
 
 .exercise { margin: 0; font-size: clamp(1.75rem, 8vw, 2.5rem); font-weight: 700; line-height: 1.15; overflow-wrap: anywhere; }
 .next { margin: 8px 0 0; font-size: 1.0625rem; overflow-wrap: anywhere; }
 
 .controls { display: flex; gap: 8px; }
 .controls button { flex: 1; min-height: 56px; }
+
+/* Run view: rows share the window height (dvh) so nothing shifts as the text changes. */
+.timer.run { height: calc(100dvh - 40px); min-height: 0; gap: 16px; }
+.timer.run > * { min-height: 0; }
+.run-header { flex: 0 0 calc(100dvh / 15); display: flex; flex-direction: column; justify-content: center; }
+.run-header .progress-label { margin: 0; }
+.timer.run .exercise { flex: 1; padding: 16px; border: 1px solid var(--danger); border-radius: 10px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.timer.run .next { flex: 0 0 20dvh; margin: 0; display: flex; align-items: center; justify-content: center; font-size: clamp(1.75rem, 8vw, 2.5rem); }
+.timer.run .bar { flex: 0 0 20dvh; display: flex; }
+.timer.run .clock { flex: 1; }
+.run-controls { flex: 0 0 20dvh; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.run-controls svg { display: block; width: 56px; height: 56px; margin: auto; }
