@@ -1,0 +1,159 @@
+:root {
+  --bg: #f6f6f3;
+  --surface: #ffffff;
+  --text: #1a1a18;
+  --muted: #6b6b65;
+  --border: #dcdcd5;
+  --accent: #1f7a4d;
+  --on-accent: #ffffff;
+  --danger: #b3261e;
+  --warning: #c2570c;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #121211;
+    --surface: #1d1d1b;
+    --text: #f2f2ee;
+    --muted: #a0a099;
+    --border: #363632;
+    --accent: #4cc38a;
+    --on-accent: #08130d;
+    --danger: #f2736a;
+    --warning: #f5a05a;
+  }
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 16px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+main {
+  max-width: 560px;
+  min-height: 100dvh;
+  margin: 0 auto;
+  padding: max(20px, env(safe-area-inset-top)) 16px max(20px, env(safe-area-inset-bottom));
+}
+
+h1 { margin: 0; font-size: 1.75rem; line-height: 1.2; }
+h2 { margin: 0; font-size: 1.125rem; overflow-wrap: anywhere; }
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+button, input, textarea { font: inherit; color: inherit; }
+
+button {
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button:disabled { opacity: 0.35; cursor: default; }
+button:focus-visible, input:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+button.primary { border-color: var(--accent); background: var(--accent); color: var(--on-accent); }
+button.danger { border-color: var(--danger); background: transparent; color: var(--danger); }
+button.danger.armed { background: var(--danger); color: var(--bg); }
+
+button.icon { flex: none; width: 44px; padding: 0; }
+
+input, textarea {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+}
+
+textarea { display: block; padding: 10px 12px; resize: vertical; }
+
+.muted { color: var(--muted); }
+.empty { padding: 48px 16px; text-align: center; }
+
+/* Workout list */
+.cards { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
+
+.card {
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+}
+
+.card p { margin: 4px 0 14px; font-size: 0.9375rem; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.actions .primary { flex: 1; }
+
+/* Editor */
+form { display: grid; gap: 18px; }
+.field { display: grid; gap: 6px; }
+.field > span, .legend { font-size: 0.875rem; font-weight: 600; }
+.sets { max-width: 120px; }
+
+.rows { display: grid; gap: 8px; margin-top: 6px; }
+.row { display: flex; gap: 6px; }
+.row .name { flex: 1; min-width: 0; }
+.row .reps { flex: none; width: 68px; text-align: center; }
+
+.add { width: 100%; margin-top: 8px; border-style: dashed; }
+.paste { margin-top: 12px; }
+.paste summary { min-height: 44px; line-height: 44px; font-weight: 600; cursor: pointer; }
+.paste button { width: 100%; margin-top: 8px; }
+.error { margin: 0; color: var(--danger); font-weight: 600; }
+.form-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.form-actions .primary { flex: 1; }
+
+/* Timer */
+.timer {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100dvh - 40px);
+  text-align: center;
+}
+
+.timer .stage {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+  padding: 24px 0;
+}
+
+.timer .progress-label { margin: 4px 0 0; }
+
+.clock {
+  font-size: clamp(5.5rem, 30vw, 9rem);
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.clock.ending { color: var(--warning); }
+
+.bar { height: 8px; margin: 8px 0 24px; border-radius: 4px; background: var(--border); overflow: hidden; }
+.bar > div { height: 100%; background: var(--accent); }
+
+.exercise { margin: 0; font-size: clamp(1.75rem, 8vw, 2.5rem); font-weight: 700; line-height: 1.15; overflow-wrap: anywhere; }
+.next { margin: 8px 0 0; font-size: 1.0625rem; overflow-wrap: anywhere; }
+
+.controls { display: flex; gap: 8px; }
+.controls button { flex: 1; min-height: 56px; }
