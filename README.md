@@ -2,6 +2,8 @@
 
 A small EMOM (every minute on the minute) timer. Each minute is one exercise, and the list repeats for the number of sets, so a workout lasts `sets × exercises` minutes.
 
+Each workout has a title and an optional description, shown on its card in the list.
+
 Workouts live in the browser's local storage. There is no backend or build step, and they stay on the device they were created on.
 
 The editor also accepts a pasted list, one exercise per line. A leading number is the reps, and an entry without one has no rep count:

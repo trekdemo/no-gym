@@ -100,6 +100,7 @@ textarea { display: block; padding: 10px 12px; resize: vertical; }
 }
 
 .card p { margin: 4px 0 14px; font-size: 0.9375rem; }
+.card .description { margin-bottom: 8px; white-space: pre-line; }
 .actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .actions .primary { flex: 1; }
 
