@@ -9,7 +9,8 @@ const DEFAULT_SETS = 3;
 
 const app = document.getElementById('app');
 
-// A workout is { id, title, sets, exercises: [{ name, reps }] }.
+// A workout is { id, title, description, sets, exercises: [{ name, reps }] }.
+// The description is optional free text; workouts saved before it existed lack it.
 // Reps are null for entries that aren't counted, like "REST".
 const store = {
   all() {
@@ -121,6 +122,7 @@ function renderList() {
 function workoutCard(workout) {
   return h('li', { className: 'card' },
     h('h2', {}, workout.title),
+    workout.description && h('p', { className: 'description' }, workout.description),
     h('p', { className: 'muted' },
       `${plural(workout.sets, 'set')} · ${plural(workout.exercises.length, 'exercise')} · ${totalMinutes(workout)} min`),
     h('div', { className: 'actions' },
@@ -153,6 +155,7 @@ function parseReps(reps) {
 
 function validate(draft) {
   const title = draft.title.trim();
+  const description = (draft.description ?? '').trim();
   const sets = Number(draft.sets);
   const exercises = draft.exercises
     .map(({ name, reps }) => ({ name: name.trim(), reps: parseReps(reps) }))
@@ -164,13 +167,13 @@ function validate(draft) {
   if (exercises.some(({ reps }) => reps !== null && (!Number.isInteger(reps) || reps < 1))) {
     return { error: 'Reps must be blank or a whole number of at least 1.' };
   }
-  return { workout: { id: draft.id, title, sets, exercises } };
+  return { workout: { id: draft.id, title, description, sets, exercises } };
 }
 
 function renderEditor(existing) {
   const draft = existing
     ? structuredClone(existing)
-    : { id: newId(), title: '', sets: DEFAULT_SETS, exercises: [{ name: '', reps: DEFAULT_REPS }] };
+    : { id: newId(), title: '', description: '', sets: DEFAULT_SETS, exercises: [{ name: '', reps: DEFAULT_REPS }] };
 
   const rows = h('div', { className: 'rows' });
   const errorLine = h('p', { className: 'error', role: 'alert', hidden: true });
@@ -272,6 +275,16 @@ function renderEditor(existing) {
           placeholder: 'Morning EMOM',
           autocapitalize: 'sentences',
           oninput: (event) => { draft.title = event.target.value; },
+        }),
+      ),
+      h('label', { className: 'field' },
+        h('span', {}, 'Description (optional)'),
+        h('textarea', {
+          rows: 3,
+          value: draft.description ?? '',
+          placeholder: 'Focus, equipment, notes…',
+          autocapitalize: 'sentences',
+          oninput: (event) => { draft.description = event.target.value; },
         }),
       ),
       h('label', { className: 'field sets' },
