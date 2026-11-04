@@ -153,13 +153,25 @@ function parseReps(reps) {
   return reps === null || reps === '' ? null : Number(reps);
 }
 
+// Drafts hold raw input values, so names need trimming and reps parsing.
+function cleanExercises(draftExercises) {
+  return draftExercises
+    .map(({ name, reps }) => ({ name: name.trim(), reps: parseReps(reps) }))
+    .filter(({ name }) => name !== '');
+}
+
+// The inverse of parseExercises: "<reps> <name>" per line, or just the name when uncounted.
+function formatExercises(exercises) {
+  return exercises
+    .map(({ reps, name }) => (reps === null ? name : `${reps} ${name}`) + '\n')
+    .join('');
+}
+
 function validate(draft) {
   const title = draft.title.trim();
   const description = (draft.description ?? '').trim();
   const sets = Number(draft.sets);
-  const exercises = draft.exercises
-    .map(({ name, reps }) => ({ name: name.trim(), reps: parseReps(reps) }))
-    .filter(({ name }) => name !== '');
+  const exercises = cleanExercises(draft.exercises);
 
   if (title === '') return { error: 'Give the workout a title.' };
   if (!Number.isInteger(sets) || sets < 1) return { error: 'Sets must be a whole number of at least 1.' };
@@ -250,6 +262,28 @@ function renderEditor(existing) {
         pasteBox.open = false;
       },
     }, 'Replace exercises'),
+    h('button', {
+      type: 'button',
+      async onclick(event) {
+        const button = event.currentTarget;
+        const exercises = cleanExercises(draft.exercises);
+        if (exercises.length === 0) {
+          showError('Add at least one exercise to export.');
+          return;
+        }
+        showError(null);
+        const text = formatExercises(exercises);
+        try {
+          await navigator.clipboard.writeText(text);
+          button.textContent = 'Copied!';
+          setTimeout(() => { button.textContent = 'Copy exercises as text'; }, 1500);
+        } catch {
+          // Clipboard access can be denied, so show the text to copy by hand.
+          pastedText.value = text;
+          pastedText.select();
+        }
+      },
+    }, 'Copy exercises as text'),
   );
 
   function submit(event) {
