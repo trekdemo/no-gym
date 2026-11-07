@@ -1,0 +1,5 @@
+#!/bin/sh
+
+echo "Visit http://pi.local:8000\n"
+python3 -m http.server 8000
+
