@@ -1,2 +1,8 @@
 .claude/
 .DS_Store
+# Xcode and Swift Package Manager
+xcuserdata/
+DerivedData/
+.build/
+.swiftpm/
+*.xcuserstate

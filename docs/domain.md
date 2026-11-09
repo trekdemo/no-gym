@@ -161,3 +161,49 @@ sequenceDiagram
 The app keeps the screen on during a run. When the user leaves the run screen, the run ends.
 
 The app finds the position from the clock time, not from a counter. A slow timer cannot make the clock drift.
+
+## iOS app
+
+The iOS app in `ios/` takes the EMOM model further. A workout becomes a **sequence** of timed intervals, and EMOM is one of several templates. The code lives in `ios/NoGymKit`.
+
+| Term | Meaning | In code |
+|------|---------|---------|
+| **Sequence** | A saved plan: a title, notes, a template, the number of rounds, prep time, and sounds. | `Routine` |
+| **Template** | How the sequence was made, with its own settings: EMOM, Tabata, Breathing or Custom. | `Template` |
+| **Interval** | One timed entry: a label, a duration in seconds, optional reps, and a role. | `Interval` |
+| **Role** | What an interval is for: work, rest, inhale, hold or exhale. It sets the colour and the breathing tone. | `Role` |
+| **Round** | One pass through the intervals. It is the same as a **set** in the web app. | `Step.round` |
+| **Step** | One interval in one round, placed on the time line. | `Step` |
+| **Cue** | A sound at a moment in the run: a countdown tick, an interval-end, round-end or finish sound, or a breathing tone. | `Cue` |
+
+### Templates
+
+| Template | One round is | Default |
+|----------|--------------|---------|
+| EMOM | One step for each exercise. Each step lasts the step length. An exercise called "Rest" is a rest. | 60 s steps, 3 rounds |
+| Tabata | Work, then rest. Each round uses the next exercise name, and the list starts over at the end. | 20 s / 10 s, 8 rounds |
+| Breathing | Inhale, hold, exhale, hold. A hold of 0 s is left out. | Box 4-4-4-4, 6 breaths |
+| Custom | The list as written. | 1 round |
+
+`total time = sum of all steps` (plus the prep time, 10 s by default)
+
+### Sounds
+
+When sounds fall at the same moment, the bigger event wins: **finish**, then **round end**, then **interval end**. If the winning sound is set to None, the next one down plays. Countdown ticks play in the last 3 or 5 seconds of each period, but never at the moment the period starts.
+
+| Event | Default (EMOM, Tabata) | Default (Breathing) |
+|-------|------------------------|---------------------|
+| Last seconds of an interval | Tick each second, last 3 s | None |
+| Interval ends | Beep | None |
+| Round ends | Double beep | None |
+| Sequence done | Bell | Bell |
+| Inhale, hold or exhale starts | None | Rising, low or falling guide tone |
+
+### Run controls
+
+| Control | Result |
+|---------|--------|
+| Pause / resume | The clock stops or continues. Sounds that haven't played yet are cleared, then scheduled again on resume. |
+| Next | Jumps to the start of the next step. On the last step, the run ends. |
+| Previous | Goes back to the start of the current step. Within its first 2 seconds, it goes to the step before. |
+| Stop | Asks first, then ends the run. |
