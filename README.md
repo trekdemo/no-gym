@@ -4,7 +4,7 @@ A small EMOM (every minute on the minute) timer. Each minute is one exercise, an
 
 Each workout has a title and an optional description, shown on its card in the list.
 
-An iOS app that generalises this into sequences of timers (EMOM, Tabata, breathing and custom) lives in [`ios/`](ios/README.md).
+An iOS app that generalises this into sequences of timers (EMOM, Tabata, breathing and custom) lives in [`ios/`](ios/README.md). Its behaviour, written without any technology in mind, is in [`docs/spec.md`](docs/spec.md).
 
 Workouts live in the browser's local storage. There is no backend or build step, and they stay on the device they were created on.
 
