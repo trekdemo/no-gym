@@ -6,11 +6,10 @@ This document describes the core entities of No Gym and the actions a user can d
 
 | Term | Meaning |
 |------|---------|
-| **Workout** | A saved plan. It has a title, an optional description, a number of sets, and a list of exercises. |
+| **Workout** | A saved plan. It has a title, a description, a number of sets, and a list of exercises. |
+| **Set** | One full pass through the list of exercises. |
 | **Exercise** | One entry in a workout. It has a name and an optional rep count. |
 | **Reps** | The number of repetitions. An exercise with no reps is not counted (for example, `REST`). |
-| **Set** | One full pass through the list of exercises. |
-| **Step** | One minute of work. One step is one exercise in one set. |
 | **Run** | One live execution of a workout, with a timer. |
 | **EMOM** | "Every minute on the minute". Each minute starts one new exercise. |
 
