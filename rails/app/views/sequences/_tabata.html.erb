@@ -1,0 +1,19 @@
+<section class="group">
+  <div class="row">
+    <label>Work</label>
+    <%= render "stepper", name: "sequence[settings][workSeconds]", value: settings["workSeconds"],
+          min: 5, max: 600, step: 5, field: "workSeconds", unit: "s", label: "Work" %>
+  </div>
+  <div class="row">
+    <label>Rest</label>
+    <%= render "stepper", name: "sequence[settings][restSeconds]", value: settings["restSeconds"],
+          min: 0, max: 600, step: 5, field: "restSeconds", unit: "s", label: "Rest" %>
+  </div>
+</section>
+
+<section class="group">
+  <h2 class="group-title">Exercises (optional)</h2>
+  <textarea name="sequence[settings][exercisesText]" class="input" rows="4" data-field="exercisesText"
+            placeholder="One name per line" aria-label="Exercises"><%= Array(settings["exercises"]).join("\n") %></textarea>
+  <p class="footer-note">Each round moves on to the next one. Leave empty to show 'Work'.</p>
+</section>

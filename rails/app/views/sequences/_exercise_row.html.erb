@@ -1,0 +1,7 @@
+<li class="item" data-rows-target="row">
+  <input type="text" name="sequence[settings][exercises][][name]" value="<%= name %>" class="input" placeholder="Exercise"
+         data-field="name" aria-label="Exercise name">
+  <input type="text" name="sequence[settings][exercises][][reps]" value="<%= reps %>" class="input reps-input" placeholder="reps"
+         inputmode="numeric" pattern="[0-9]*" data-field="reps" aria-label="Reps" data-action="input->rows#digits">
+  <%= render "row_tools" %>
+</li>

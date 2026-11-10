@@ -1,0 +1,19 @@
+<section class="group">
+  <h2 class="group-title">One breath · <span data-editor-target="breathTotal"><%= Format.duration(%w[inhale holdIn exhale holdOut].sum { settings[_1].to_f }) %></span></h2>
+  <div class="chips">
+    <% SequenceTemplate::BREATHING_PRESETS.each do |name, values| %>
+      <button type="button" class="chip" data-editor-target="preset" data-action="editor#preset"
+              data-values="<%= values.to_json %>" aria-pressed="<%= values.all? { |k, v| settings[k].to_f == v.to_f } %>">
+        <%= name.sub(/ 4-4-4-4| 5.5-5.5/, "") %>
+      </button>
+    <% end %>
+  </div>
+  <% [ [ "Inhale", "inhale", 1, 20 ], [ "Hold", "holdIn", 0, 30 ], [ "Exhale", "exhale", 1, 20 ], [ "Hold", "holdOut", 0, 30 ] ].each do |label, key, min, max| %>
+    <div class="row">
+      <label><%= label %></label>
+      <%= render "stepper", name: "sequence[settings][#{key}]", value: settings[key], min:, max:, step: 0.5,
+            field: key, unit: "s", label: %>
+    </div>
+  <% end %>
+  <p class="footer-note">A hold of 0 s is skipped.</p>
+</section>

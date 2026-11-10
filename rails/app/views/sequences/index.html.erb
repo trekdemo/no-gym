@@ -1,0 +1,56 @@
+<% content_for :title, "No Gym" %>
+
+<header class="bar">
+  <% if @sequences.any? %>
+    <%= link_to (@editing ? "Done" : "Edit"), root_path(editing: (@editing ? nil : 1)), class: "bar-action" %>
+  <% else %>
+    <span></span>
+  <% end %>
+  <h1>No Gym</h1>
+  <%= link_to "＋", new_sequence_path, class: "bar-action bar-plus", aria: { label: "New sequence" } %>
+</header>
+
+<main class="page">
+  <% if @error %>
+    <p class="error-banner" role="alert"><%= @error %></p>
+  <% end %>
+
+  <% if @sequences.empty? %>
+    <div class="empty">
+      <p class="empty-title">No sequences yet</p>
+      <p>Tap + to make your first one.</p>
+    </div>
+  <% else %>
+    <ol class="cards">
+      <% @sequences.each_with_index do |sequence, index| %>
+        <li class="card" id="<%= dom_id(sequence) %>">
+          <%= link_to edit_sequence_path(sequence), class: "card-body" do %>
+            <h2 class="card-title"><%= sequence.title %></h2>
+            <% if sequence.notes.present? %>
+              <p class="card-notes"><%= sequence.notes %></p>
+            <% end %>
+            <p class="card-meta">
+              <span aria-hidden="true"><%= sequence.template.icon %></span>
+              <%= sequence.template.title %> · <%= Format.summary(sequence) %>
+            </p>
+          <% end %>
+
+          <% if @editing %>
+            <div class="card-edit">
+              <%= button_to "↑", move_sequence_path(sequence, direction: "up"), method: :patch,
+                    class: "icon-button", disabled: index.zero?, aria: { label: "Move #{sequence.title} up" } %>
+              <%= button_to "↓", move_sequence_path(sequence, direction: "down"), method: :patch,
+                    class: "icon-button", disabled: index == @sequences.size - 1, aria: { label: "Move #{sequence.title} down" } %>
+              <%= button_to "Delete", sequence_path(sequence, editing: 1), method: :delete, class: "danger-button",
+                    form: { data: { turbo_confirm: "Delete #{sequence.title}?" } } %>
+            </div>
+          <% else %>
+            <%= link_to "▶", run_sequence_path(sequence), class: "start-button",
+                  aria: { label: "Start #{sequence.title}" },
+                  data: { controller: "unlock", action: "unlock#unlock", turbo_prefetch: false } %>
+          <% end %>
+        </li>
+      <% end %>
+    </ol>
+  <% end %>
+</main>

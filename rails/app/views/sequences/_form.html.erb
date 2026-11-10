@@ -1,0 +1,65 @@
+<% template = sequence.template %>
+<% kind = sequence.kind %>
+
+<%= form_with model: sequence, class: "editor",
+      data: { controller: "editor", editor_kind_value: kind, action: "input->editor#refresh change->editor#refresh" } do |f| %>
+  <header class="bar">
+    <% if sequence.persisted? %>
+      <%= link_to "Cancel", root_path, class: "bar-action" %>
+      <h1>Edit sequence</h1>
+    <% else %>
+      <%= link_to "Back", new_sequence_path, class: "bar-action" %>
+      <h1>New <%= template.title %></h1>
+    <% end %>
+    <%= f.submit "Save", class: "bar-action bar-save" %>
+  </header>
+
+  <main class="page">
+    <% unless sequence.persisted? %>
+      <%= f.hidden_field :kind %>
+    <% end %>
+
+    <section class="group">
+      <%= f.text_field :title, placeholder: SequenceTemplate::TITLE_PLACEHOLDERS[kind], class: "input title-input",
+            aria: { label: "Title" }, autocomplete: "off" %>
+      <%= f.text_area :notes, placeholder: "Notes (optional)", rows: 2, class: "input notes-input", aria: { label: "Notes" } %>
+    </section>
+
+    <%= render kind, f:, settings: sequence.settings %>
+
+    <section class="group">
+      <div class="row">
+        <label><%= kind == "breathing" ? "Breaths" : "Rounds" %></label>
+        <%= render "stepper", name: "sequence[rounds]", value: sequence.rounds, min: 1, max: 99, step: 1,
+              field: "rounds", label: (kind == "breathing" ? "Breaths" : "Rounds") %>
+      </div>
+      <div class="row">
+        <label>Get ready</label>
+        <%= render "stepper", name: "sequence[prep_seconds]", value: plain_number(sequence.prep_seconds),
+              min: 0, max: 60, step: 5, field: "prepSeconds", unit: "s", label: "Get ready" %>
+      </div>
+      <div class="row">
+        <span>Total time</span>
+        <output class="total" data-editor-target="total"><%= Format.clock(sequence.total_seconds) %></output>
+      </div>
+      <p class="footer-note">The whole list repeats for each round.</p>
+    </section>
+
+    <%= render "sounds", f:, sound: SoundSettings.normalize(sequence.sound, kind) %>
+  </main>
+<% end %>
+
+<% if sequence.persisted? %>
+  <div class="page delete-area">
+    <%= button_to "Delete sequence", sequence_path(sequence), method: :delete, class: "danger-button wide",
+          form: { data: { turbo_confirm: "Delete #{sequence.title_was.presence || sequence.title}?" } } %>
+  </div>
+<% end %>
+
+<% if sequence.errors.any? %>
+  <dialog class="alert" data-controller="dialog" data-dialog-open-value="true" aria-labelledby="alert-title">
+    <h2 id="alert-title">Can't save yet</h2>
+    <p><%= sequence.errors.full_messages.first %></p>
+    <button type="button" class="primary-button" data-action="dialog#close" autofocus>OK</button>
+  </dialog>
+<% end %>

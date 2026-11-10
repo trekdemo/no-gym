@@ -1,0 +1,12 @@
+<section class="group" data-controller="rows" data-rows-copy-value='["seconds", "role"]'>
+  <h2 class="group-title">Intervals · one round</h2>
+  <ol class="rows" data-rows-target="list">
+    <% Array(settings["intervals"]).each do |interval| %>
+      <%= render "interval_row", interval: %>
+    <% end %>
+  </ol>
+  <template data-rows-target="template">
+    <%= render "interval_row", interval: { "label" => "", "seconds" => 30, "role" => "work", "reps" => nil } %>
+  </template>
+  <button type="button" class="link-button" data-action="rows#add">＋ Add interval</button>
+</section>

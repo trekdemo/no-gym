@@ -1,0 +1,12 @@
+<%# A number field with − and + buttons. Locals: name, value, min, max, step, field, unit, coarse, label %>
+<% coarse = local_assigns.fetch(:coarse, false) %>
+<div class="stepper" data-controller="stepper"
+     data-stepper-min-value="<%= min %>" data-stepper-max-value="<%= max %>"
+     data-stepper-step-value="<%= step %>" data-stepper-coarse-value="<%= coarse %>">
+  <button type="button" class="stepper-button" data-action="stepper#down" aria-label="Less">−</button>
+  <input type="number" name="<%= name %>" value="<%= value %>" min="<%= min %>" max="<%= max %>" step="any"
+         inputmode="decimal" data-stepper-target="input" data-field="<%= field %>"
+         <% if local_assigns[:label] %>aria-label="<%= label %>"<% end %>>
+  <% if local_assigns[:unit] %><span class="stepper-unit"><%= unit %></span><% end %>
+  <button type="button" class="stepper-button" data-action="stepper#up" aria-label="More">+</button>
+</div>

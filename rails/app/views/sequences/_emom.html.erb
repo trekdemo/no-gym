@@ -1,0 +1,29 @@
+<section class="group">
+  <div class="row">
+    <label>Each step</label>
+    <%= render "stepper", name: "sequence[settings][stepSeconds]", value: settings["stepSeconds"],
+          min: 10, max: 600, step: 5, field: "stepSeconds", unit: "s", label: "Each step" %>
+  </div>
+  <p class="footer-note">Usually one minute. The exercise starts at the top of each step.</p>
+</section>
+
+<section class="group" data-controller="rows paste">
+  <h2 class="group-title">Exercises · one per step</h2>
+  <ol class="rows" data-rows-target="list">
+    <% Array(settings["exercises"]).each do |exercise| %>
+      <%= render "exercise_row", name: exercise["name"], reps: exercise["reps"] %>
+    <% end %>
+  </ol>
+  <template data-rows-target="template"><%= render "exercise_row", name: "", reps: 10 %></template>
+  <button type="button" class="link-button" data-action="rows#add">＋ Add exercise</button>
+
+  <details class="paste">
+    <summary>Paste as text</summary>
+    <textarea class="input" rows="5" data-paste-target="text" data-action="input->paste#toggle"
+              placeholder="Min 1: 10 Deadlifts&#10;Min 2: 10 Sit-ups&#10;Min 3: REST" aria-label="Exercises as text"></textarea>
+    <div class="paste-actions">
+      <button type="button" class="secondary-button" data-paste-target="replace" data-action="paste#replace" disabled>Replace exercises</button>
+      <button type="button" class="link-button" data-paste-target="copy" data-action="paste#copy">Copy exercises as text</button>
+    </div>
+  </details>
+</section>

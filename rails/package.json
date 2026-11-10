@@ -1,0 +1,15 @@
+{
+  "name": "nogym",
+  "private": true,
+  "type": "module",
+  "description": "JavaScript tests for the run screen's clock, cues and sounds. The app itself loads these modules through importmap; there is no build step.",
+  "exports": {
+    "./*": "./app/javascript/nogym/*.js"
+  },
+  "scripts": {
+    "test": "node --test test/javascript/*.test.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

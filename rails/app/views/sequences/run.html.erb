@@ -1,0 +1,58 @@
+<% content_for :title, @sequence.title %>
+<% content_for :head do %>
+  <%# A run is never resumed later, so Turbo must not restore it from its cache. %>
+  <meta name="turbo-cache-control" content="no-cache">
+<% end %>
+
+<div class="run" data-controller="run" data-role="prep"
+     data-run-sequence-value="<%= @sequence.run_data.to_json %>"
+     data-action="keydown@window->run#key">
+  <section class="run-screen" data-run-target="screen">
+    <header class="run-header">
+      <div class="run-title">
+        <h1><%= @sequence.title %></h1>
+        <span class="badge" data-run-target="paused" hidden>PAUSED</span>
+      </div>
+      <p class="run-meta" data-run-target="meta"><%= Format.summary(@sequence) %></p>
+    </header>
+
+    <div class="run-main">
+      <p class="role-tag" data-run-target="role">GET READY</p>
+      <p class="current-label" data-run-target="label">Get ready</p>
+      <div class="breath-circle" data-run-target="circle" hidden><span></span></div>
+      <p class="countdown" data-run-target="countdown" role="timer"><%= Format.clock(@sequence.prep_seconds) %></p>
+      <div class="progress"><span data-run-target="bar"></span></div>
+      <div class="next-card">
+        <span class="next-caption" data-run-target="nextCaption">FIRST</span>
+        <span class="next-label" data-run-target="nextLabel"></span>
+        <span class="next-duration" data-run-target="nextDuration"></span>
+      </div>
+    </div>
+
+    <button type="button" class="sound-hint" data-run-target="soundHint" data-action="run#enableSound" hidden>
+      Tap to turn on sound
+    </button>
+
+    <nav class="controls" aria-label="Run controls">
+      <button type="button" class="control" data-action="run#confirmStop" aria-label="Stop">✕</button>
+      <button type="button" class="control" data-action="run#previous" aria-label="Previous">⏮</button>
+      <button type="button" class="control play" data-run-target="playButton" data-action="run#toggle" aria-label="Pause">⏸</button>
+      <button type="button" class="control" data-action="run#next" aria-label="Next">⏭</button>
+    </nav>
+  </section>
+
+  <section class="done-screen" data-run-target="done" hidden>
+    <div class="done-check" aria-hidden="true">✓</div>
+    <h1>Done!</h1>
+    <p><%= @sequence.title %> · <%= Format.summary(@sequence) %></p>
+    <%= link_to "Back to sequences", root_path, class: "primary-button" %>
+  </section>
+
+  <dialog class="alert" data-run-target="stopDialog" aria-labelledby="stop-title">
+    <h2 id="stop-title">End this sequence?</h2>
+    <div class="alert-actions">
+      <%= link_to "End", root_path, class: "danger-button" %>
+      <button type="button" class="secondary-button" data-action="run#keepGoing" autofocus>Keep going</button>
+    </div>
+  </dialog>
+</div>

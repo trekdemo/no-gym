@@ -1,0 +1,12 @@
+<li class="item interval-item" data-rows-target="row">
+  <input type="text" name="sequence[settings][intervals][][label]" value="<%= interval["label"] %>" class="input"
+         placeholder="Label" data-field="label" aria-label="Label">
+  <select name="sequence[settings][intervals][][role]" class="input role-select" data-field="role" aria-label="Role">
+    <%= options_for_select(Interval::ROLES.map { [ _1.capitalize, _1 ] }, interval["role"]) %>
+  </select>
+  <%= render "stepper", name: "sequence[settings][intervals][][seconds]", value: interval["seconds"],
+        min: 1, max: 3600, step: 1, coarse: true, field: "seconds", unit: "s", label: "Duration" %>
+  <input type="text" name="sequence[settings][intervals][][reps]" value="<%= interval["reps"] %>" class="input reps-input"
+         placeholder="reps" inputmode="numeric" pattern="[0-9]*" data-field="reps" aria-label="Reps" data-action="input->rows#digits">
+  <%= render "row_tools" %>
+</li>

@@ -1,0 +1,23 @@
+<% content_for :title, "New sequence" %>
+
+<header class="bar">
+  <%= link_to "Cancel", root_path, class: "bar-action" %>
+  <h1>New sequence</h1>
+  <span></span>
+</header>
+
+<main class="page">
+  <ul class="kinds">
+    <% SequenceTemplate::KINDS.each do |kind| %>
+      <li>
+        <%= link_to new_sequence_path(kind:), class: "kind" do %>
+          <span class="kind-icon" aria-hidden="true"><%= SequenceTemplate::ICONS[kind] %></span>
+          <span>
+            <strong><%= SequenceTemplate::TITLES[kind] %></strong>
+            <span class="kind-description"><%= SequenceTemplate::DESCRIPTIONS[kind] %></span>
+          </span>
+        <% end %>
+      </li>
+    <% end %>
+  </ul>
+</main>
