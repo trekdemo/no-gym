@@ -44,6 +44,8 @@ struct RoutineEditorView: View {
                 Text("The whole list repeats for each round.")
             }
 
+            VideoSection(video: $draft.video, labels: draft.timeline.exerciseLabels)
+
             Section {
                 NavigationLink {
                     SoundSettingsView(sound: $draft.sound)
@@ -96,6 +98,8 @@ struct RoutineEditorView: View {
         var routine = draft
         routine.title = routine.title.trimmingCharacters(in: .whitespacesAndNewlines)
         routine.notes = routine.notes.trimmingCharacters(in: .whitespacesAndNewlines)
+        // Forget the parts of exercises that were renamed or removed.
+        routine.video?.removeSegments(except: routine.timeline.exerciseLabels)
         if let message = routine.validationError() {
             error = message
             return

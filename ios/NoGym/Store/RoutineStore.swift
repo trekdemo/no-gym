@@ -59,6 +59,7 @@ final class RoutineStore {
         }
         do {
             routines = try JSONDecoder().decode([Routine].self, from: Data(contentsOf: fileURL))
+            removeUnusedVideos()
         } catch {
             lastError = "Could not read saved sequences: \(error.localizedDescription)"
         }
@@ -70,9 +71,16 @@ final class RoutineStore {
             encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
             try encoder.encode(routines).write(to: fileURL, options: .atomic)
             lastError = nil
+            removeUnusedVideos()
         } catch {
             lastError = "Could not save: \(error.localizedDescription)"
         }
+    }
+
+    /// Only runs after a successful read or write, so a file that failed to load
+    /// can't make every video look unused.
+    private func removeUnusedVideos() {
+        VideoLibrary.removeUnused(keeping: Set(routines.compactMap { $0.video?.fileName }))
     }
 
     static let examples: [Routine] = [

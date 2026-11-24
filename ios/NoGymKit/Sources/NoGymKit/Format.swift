@@ -22,6 +22,12 @@ public enum Format {
         return rest == 0 ? "\(minutes) min" : "\(minutes) min \(rest) s"
     }
 
+    /// "0:12.4": minutes, seconds and tenths, for video times in the trimmer.
+    public static func timecode(_ seconds: TimeInterval) -> String {
+        let tenths = max(0, Int((seconds * 10).rounded()))
+        return String(format: "%d:%02d.%d", tenths / 600, (tenths % 600) / 10, tenths % 10)
+    }
+
     public static func plural(_ count: Int, _ noun: String) -> String {
         "\(count) \(noun)\(count == 1 ? "" : "s")"
     }

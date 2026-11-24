@@ -76,7 +76,13 @@ classDiagram
         role
     }
     Sequence "1" *-- "1" Template
+    class Video {
+        file
+        duration
+        segments
+    }
     Sequence "1" *-- "1" SoundSettings
+    Sequence "1" *-- "0..1" Video
     Template "1" ..> "1..*" Interval : builds, per round
 ```
 
@@ -91,6 +97,7 @@ classDiagram
 | rounds | whole number | 1–99 | depends on the kind (3.3) |
 | prepSeconds | number | 0–60 in the editor; must be ≥ 0 | 10 |
 | sound | SoundSettings | see 3.4 | depends on the kind (3.4) |
+| video | Video or empty | see 3.5 | empty |
 | position | order in the list | the user can change it | added at the end |
 
 ### 3.2 Interval
@@ -159,6 +166,26 @@ The sequence stores the template's **own settings**, not only the intervals they
 | volume | 0.8 | 0.6 | 0.8 |
 
 ---
+
+### 3.5 Video
+
+A sequence may have **one video**. The app keeps **its own copy** of the file, so the sequence still works if the original is deleted. Videos play **muted**.
+
+| Field | Type | Rule |
+|-------|------|------|
+| file | the app's copy of the video | |
+| duration | seconds | > 0, read from the file when it is added |
+| segments | exercise key → segment | one entry per exercise that has a part of the video |
+
+A **segment** is a `start` and an `end` in seconds, with `0 ≤ start`, `end ≤ duration` and `end − start ≥ 0.5`. A segment that breaks these rules is **clamped**: first `start` is moved into `[0, duration − 0.5]`, then `end` into `[start + 0.5, duration]`. When the video is shorter than 0.5 s, the segment is the whole video.
+
+**Exercise key:** the interval's label, trimmed and in lower case. All intervals with the same key share **one segment**, in every round. So "Push-ups" and " push-ups " show the same part, and a Tabata name keeps its part in each round it comes back.
+
+**Exercise list:** the different labels of the expanded timeline (section 6), each key once, in the order it first appears, using the first spelling. Blank labels are skipped. For Tabata, this includes the names of later rounds and "Rest".
+
+When the sequence is saved, segments whose key isn't in the exercise list are **removed**. This means renaming an exercise loses its segment. Replacing the video removes all segments.
+
+A video file that no saved sequence uses any more **should be deleted** (after the video is replaced or removed, after a sequence is deleted, or after a picked video is cancelled).
 
 ## 4. Template expansion
 
@@ -398,6 +425,7 @@ The title is "New EMOM", "New Tabata" and so on, or "Edit sequence". The actions
 - **Rounds** stepper, 1–99. The label is "Breaths" for Breathing and "Rounds" otherwise. Footer: "The whole list repeats for each round."
 - **Get ready** stepper, 0–60 s in steps of 5.
 - **Total time** (workDuration), shown live as the user edits.
+- **Video** (10.3.1).
 - **Sounds**, which opens 10.4.
 - **Delete sequence**, only when editing. It asks "Delete <title>?" first.
 
@@ -426,7 +454,27 @@ Durations are shown as `20 s`, `5.5 s`, `1 min` or `1 min 30 s` (see 13.6).
 - **Intervals · one round:** a list of rows. Each row has a label, a role picker, a duration stepper (1–3600 s, in steps of 1 below 10 s and steps of 5 above) and an optional reps field. You can delete and reorder rows.
 - **Add interval** adds a row with an empty label, using the last row's duration and role (or 30 s and work if the list is empty).
 
-**Save** validates the sequence (section 5), saves it, and closes the editor.
+**Save** validates the sequence (section 5), removes unused segments (3.5), saves it, and closes the editor.
+
+#### 10.3.1 Video section
+
+- **Without a video:** **Choose from Photos** and **Choose from Files**. Footer: "Add a video to show a looping part of it while each exercise runs."
+- **While copying:** a spinner with "Copying video…". A file that can't be played shows "Can't use that video".
+- **With a video:** the video's length, then **one row per exercise** in the exercise list (3.5). A row shows the segment as `"0:12.4 – 0:17.4"` (13.6), or **"No video"**. Tapping a row opens the trimmer. **Replace or remove video** offers both pickers again and **Remove video**. Footer: exercises with the same name share their part, in every round, and exercises without a part show only the timer.
+
+#### 10.3.2 Trimmer
+
+It opens for one exercise, with the exercise name as its title, and **Cancel** and **Done**.
+
+- **Preview** at the top. It plays the selected segment in a loop, muted.
+- **Start**, **Length** (`"5.0 s"`) and **End**, with times in timecode format (13.6).
+- **Trim bar:** a filmstrip of the whole video. The selection has a frame with a **handle** on each side. The parts outside it are dimmed. A playhead shows where the preview is.
+  - Dragging the **start handle** moves the start and keeps the end. Dragging the **end handle** moves the end and keeps the start. Either way the segment stays at least 0.5 s long and inside the video.
+  - Dragging **inside the frame** moves the whole segment and keeps its length.
+  - While dragging, the preview pauses on the frame under the finger. When the finger lifts, the new segment starts to loop.
+- **Fine tuning:** − and + buttons move the start or the end by 0.1 s.
+- **Remove video for <exercise>**, only when the exercise already had a segment.
+- **New segment:** it starts at the furthest `end` of the existing segments, or at 0 if there are none or that is the end of the video, and it is 5 s long, clamped (3.5).
 
 ### 10.4 Sound settings
 
@@ -483,6 +531,28 @@ There is one row per setting in 3.4. Changing a sound **plays it right away**, a
 - **Stop** asks "End this sequence?", with **End** (destructive) and **Keep going**.
 - The screen should redraw smoothly (about 30 fps or more) while running, always computed from the clock (7.1).
 
+#### 10.5.1 Video page
+
+When the sequence has a video, the run screen has **two pages**: the **timer page** above, and the **video page**. **Swiping left or right** moves to the other page, whichever way you swipe. The other page follows the finger, and a short or slow swipe snaps back. Two small dots at the top show which page is showing. They only appear while the video page is available.
+
+**Current segment:**
+- **Prep:** the first step's segment, so you can watch what's coming.
+- **Active step:** the segment of the step's exercise key (3.5), or none.
+- **Done:** none.
+
+The video page loops the current segment, muted, with no gap between loops. It starts again from the segment's start whenever the segment changes. It pauses while the run is paused.
+
+**Showing and hiding:**
+- The video page is **available** only while there is a current segment.
+- When it stops being available while it is showing, the screen **slides back to the timer page** by itself.
+- The app remembers whether you **prefer the video**. It starts as yes. Swiping to the timer sets it to no, and swiping to the video sets it to yes. While it is yes, the screen **slides to the video page by itself** when a segment becomes available again.
+- **Start:** the run opens on the video page when the first segment is available (during prep, the first step's).
+
+**On the video page:**
+- The video fills the screen, with black bars where it doesn't fit, and dark gradients at the top and bottom so the text can be read.
+- **Always on top:** the current label and the countdown. In the last 3 s, the countdown is orange, as on the timer page.
+- **Tapping** the video **fades in** everything else from the timer page: the header with PAUSED, the role tag, the progress bar, the next card and the controls. Tapping again fades it out. Unless the run is paused, it fades out by itself after **4 s**. Pausing shows it.
+
 ### 10.6 Done screen
 
 It shows a large check mark, **"Done!"**, the line `"<title> · <n> rounds · <total>"`, and a **Back to sequences** button.
@@ -511,7 +581,8 @@ The spec doesn't fix a storage technology. Whatever stores the sequences must:
 
 - keep them across restarts;
 - keep the user's list order;
-- store the **full template settings**, the kind and its own fields, as well as the sound settings, so the editor reopens the same form. The expanded intervals don't need to be stored; they can always be rebuilt (section 4).
+- store the **full template settings**, the kind and its own fields, as well as the sound settings, so the editor reopens the same form;
+- store the video (3.5) with its segments, and keep the video file itself next to the sequences. A sequence saved before videos existed loads with no video. The expanded intervals don't need to be stored; they can always be rebuilt (section 4).
 
 The clock and the cue schedule are worked out on the device during a run. They are never stored.
 
@@ -612,6 +683,7 @@ Box, 1 round, prep 0. The steps are inhale, hold, exhale, hold.
 | duration (under 60: whole number or one decimal + " s"; from 60: rounded, "N min" or "N min S s") | 20 / 5.5 / 60 / 90 | 20 s / 5.5 s / 1 min / 1 min 30 s |
 | summary | Tabata 20/10, 8 rounds | 8 rounds · 4:00 |
 | plural | 1 round / 2 rounds | "1 round", "2 rounds" |
+| timecode (rounded to tenths, `m:ss.t`) | 0 / 12.44 / 75.06 / 59.96 | 0:00.0 / 0:12.4 / 1:15.1 / 1:00.0 |
 
 ### 13.7 Paste format
 
@@ -635,6 +707,19 @@ Writing [Deadlifts × 10, REST] gives `"10 Deadlifts\nREST\n"`, and parsing that
 | hold, 7 s phase | at most 0.8 s of samples |
 | work or rest role | no breathing tone |
 | countdown tick at 1000 samples per second | 150 samples |
+
+### 13.9 Video
+
+| Given | Then |
+|-------|------|
+| video 10 s, segment −2…3 / 8…14 / 4…4.1 / 10…10 | clamped to 0…3 / 8…10 / 4…4.5 / 9.5…10 |
+| video 0.3 s, segment 0…1 | 0…0.3 |
+| new segment at 2 in a 60 s video / at 58 | 2…7 / 58…60 |
+| segment 1…4 set for " Push-ups " | "push-ups" and "PUSH-UPS" get 1…4; "Squats" gets none |
+| Tabata names Squats, Push-ups, 4 rounds | exercise list Squats, Rest, Push-ups |
+| EMOM Squats, "squats ", " " | exercise list Squats |
+| Tabata Squats 20/10, prep 10, segment only for Squats | at 2 s (prep) and 12 s: Squats' segment; at 32 s (rest): none; at 42 s (round 2): Squats' segment; done: none |
+| a saved sequence with no video field | loads with no video |
 
 ---
 

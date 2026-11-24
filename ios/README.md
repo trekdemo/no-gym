@@ -13,6 +13,8 @@ A **sequence** is a list of intervals. Each interval has a label and a duration,
 
 The run screen puts the **current label** first and the **next label** second, with a big countdown and progress bar between them. You can pause, skip forwards or backwards, and stop. Breathing intervals show a circle that grows as you breathe in and shrinks as you breathe out.
 
+A sequence can also have a **video**. In the editor, pick one from Photos or Files, then choose a part of it for each exercise with a trimmer like the one in Photos. During a run, swipe left or right to switch between the timer and the video, which loops the current exercise's part with the name and countdown on top. Tap the video to show the rest of the controls. Exercises with the same name share their part, and the app keeps its own copy of the video.
+
 Each sequence has its own **sounds**: countdown ticks (last 3 or 5 seconds), an interval-end sound, a round-end sound, a finish sound, and breathing guide tones (rising on inhale, falling on exhale, soft and low on hold). Sounds keep playing on time when the phone is locked, and they mix with your music.
 
 ## What you need
@@ -51,6 +53,7 @@ ios/
 │   ├── Store/RoutineStore.swift Saves sequences as JSON on the phone.
 │   ├── Run/RunSession.swift     One live run: pause, skip, haptics, keeping the screen on.
 │   ├── Audio/CuePlayer.swift    Plays the sounds at exact moments on the audio clock.
+│   ├── Video/                   Copying videos in, looping a segment, and the trimmer's preview.
 │   └── Views/                   The screens (SwiftUI).
 └── NoGymKit/          The rules, with no UI. You can test it on its own.
     ├── Sources/NoGymKit/
@@ -61,6 +64,7 @@ ios/
     │   ├── CueSchedule.swift    Lists every sound of a run and when it plays.
     │   ├── SoundSettings.swift  The sound choices of a sequence.
     │   ├── ToneSynth.swift      Makes the sounds from sine waves (no audio files).
+    │   ├── WorkoutVideo.swift   A sequence's video, its segments, and which one plays when.
     │   └── Format.swift         "4:00", "1 min 30 s", and the EMOM paste format.
     └── Tests/                   Tests for all of the above.
 ```

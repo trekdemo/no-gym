@@ -54,6 +54,9 @@ public struct Routine: Identifiable, Codable, Hashable, Sendable {
     /// "Get ready" time before the first interval.
     public var prepSeconds: Double
     public var sound: SoundSettings
+    /// An optional video, with a looping segment per exercise. Older saved
+    /// sequences don't have this field, and decode with no video.
+    public var video: WorkoutVideo?
 
     public init(
         id: UUID = UUID(),
@@ -62,7 +65,8 @@ public struct Routine: Identifiable, Codable, Hashable, Sendable {
         template: Template,
         rounds: Int,
         prepSeconds: Double = 10,
-        sound: SoundSettings? = nil
+        sound: SoundSettings? = nil,
+        video: WorkoutVideo? = nil
     ) {
         self.id = id
         self.title = title
@@ -71,6 +75,7 @@ public struct Routine: Identifiable, Codable, Hashable, Sendable {
         self.rounds = rounds
         self.prepSeconds = prepSeconds
         self.sound = sound ?? SoundSettings.defaults(for: template.kind)
+        self.video = video
     }
 
     /// The intervals of the first round, built from the template.
